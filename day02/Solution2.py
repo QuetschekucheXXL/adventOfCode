@@ -46,6 +46,19 @@ def is_safe(numbers):
         # if it is sorted use helper 3 to check if the distance is actually valid among all indices
         if is_distance_ok(numbers):
             return True
+    
+    # PART TWO START
+    # Checking if removing one element of an unsafe list turn it safe
+    # The plan would be to iterate over the list, delete one element at a time and check the rest of the list for validity like before
+    for i in range(0, len(numbers)):
+        tmp = numbers[:i] + numbers[i+1:]
+        if (is_strictly_increasing(tmp) or is_strictly_decreasing(tmp)) and is_distance_ok(tmp):
+            return True
+
+
+
+
+    # PART TWO END
     return False
 
 
