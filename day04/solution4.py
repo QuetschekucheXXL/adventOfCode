@@ -110,7 +110,7 @@ def count_occurences_pattern_in_x_shape(input_matrix, pattern_to_find):
     return count
 
 # END --> GETTING THE COUNT
-#result = count_occurences_pattern(input_matrix, pattern_to_find)
+result = count_occurences_pattern(input_matrix, pattern_to_find)
 result2 = count_occurences_pattern_in_x_shape(input_matrix, pattern_to_find)
 print(result2)
 
