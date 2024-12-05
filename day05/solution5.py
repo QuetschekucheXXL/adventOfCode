@@ -67,33 +67,41 @@ with open(file_path, "r") as file:
     # FUNCTION FOR PART 2 --> gets one wrong update line at a time together with the ordering rules and needs to correct the line
     def corrective_actions(ordering_rules, line_of_wrong_updates):
         corrected_update_line = line_of_wrong_updates.copy()
-        for i in range(0, len(corrected_update_line) - 1):
-            for order in ordering_rules:
-                if corrected_update_line[i] == order[1]:
-                    slice_to_check = corrected_update_line[i+1:]
-                    if order[0] in slice_to_check:
-                        print(f"Order number {order[0]} found after {corrected_update_line[i]} but should come before!")
-                    
+        should_restart = True
+        #print(f"Should restart is: {should_restart}")
+        while should_restart:
+            should_restart = False
+            #print("I am in WHILE")
+            for i in range(0, len(corrected_update_line) - 1):
+                for order in ordering_rules:
+                    if corrected_update_line[i] == order[1]:
+                        slice_to_check = corrected_update_line[i+1:]
+                        if order[0] in slice_to_check:
+                            should_restart = True
+                            #print(f"Order number {order[0]} found after {corrected_update_line[i]} but should come before!")
+                            index_to_change = slice_to_check.index(order[0])
+                            #print(index_to_change)
+                            number_to_change = slice_to_check.pop(index_to_change)
+                            #print(f"Number to take from Slice: {number_to_change}")
+                            #print(f"slice after number is removed: {slice_to_check}")
+                            corrected_update_line = corrected_update_line[:i] + [number_to_change] + [corrected_update_line[i]] + slice_to_check
+                            #print(corrected_update_line)
+                            #print(f"Should restart is: {should_restart}")
+        return corrected_update_line        
 
             
-       
-        
-
-
-
-
-
-
     # MAIN PART 
     sum_of_middle_page_numbers = 0
     list_of_wrong_updates = []
 
     #PART 1
-    for line in test_updates:
-        if is_update_correct(test_orders, line):
+    for line in updates:
+        if is_update_correct(ordering_rules, line):
             sum_of_middle_page_numbers += line[(len(line) // 2)]
-        if not is_update_correct(test_orders, line):
+        if not is_update_correct(ordering_rules, line):
             list_of_wrong_updates.append(line)
+    print(sum_of_middle_page_numbers)
+    print(f"There are {len(list_of_wrong_updates)} wrong updates")
     
 
 
@@ -101,8 +109,14 @@ with open(file_path, "r") as file:
     list_of_corrected_updates = []
     for line in list_of_wrong_updates:
         # uses the orders and one line of the list of wrong updates which in turn is a list of numbers to be checked
-        print(f"Checking line: {line}")
-        list_of_corrected_updates.append(corrective_actions(test_orders, line))
+        #print(f"CHECKING LINE: {line}")
+        #print(f"APPENDING LINE: {corrective_actions(ordering_rules, line)}")
+        list_of_corrected_updates.append(corrective_actions(ordering_rules, line))
+
+    sum_of_corrected = 0
+    for line in list_of_corrected_updates:
+        sum_of_corrected += line[(len(line) // 2)]
+    print(sum_of_corrected)
     
     
     
@@ -110,7 +124,7 @@ with open(file_path, "r") as file:
     # CHECKS
     #print(sum_of_middle_page_numbers) #--> for Part 1 this was 4637
     #print(list_of_wrong_updates)
-    #print(list_of_corrected_updates)
+    print(f"number of corrected updates: {len(list_of_corrected_updates)}")
 
     # CHECKS
     #print(ordering_rules) --> fine = list of two ints each
