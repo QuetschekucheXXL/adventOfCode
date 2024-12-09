@@ -7,8 +7,6 @@ with open(file_path, "r") as file:
 
     input = []
     for line in puzzle_input:
-        #print("NEW LINE")
-        #print(list(line))
         input.append(list(line))
 
 
@@ -34,15 +32,6 @@ def turn_input_to_grid(input_list):
 
 test_grid = turn_input_to_grid(test_input)
 
-# Printing the grids work. They are now a list of lists.
-# each list consists of the characters as single entries in the list
-#grid = turn_input_to_grid(input)
-print(f"Printing Test-Grid:")
-for line in test_grid:
-    print(line)
-#print(f"Printing Grid:")
-#for line in input:
-#    print(line)
 
 def finding_starting_position(map_to_check):
     for line in map_to_check:
@@ -85,42 +74,34 @@ def check_grid_at_new_position(map_to_check, initial_position, initial_direction
     movement_count = {'^': 0, '>': 0, 'v': 0, '<': 0}
 
     while True:
-        #calculate the next position
+        # calculate the next position
         next_position = calculate_new_position(current_position, check_direction(current_direction))
 
-        #checking if next pos is out of bounds
+        # checking if next pos is out of bounds
         if next_position[0] < 0 or next_position[0] >= len(map_to_check) or next_position[1] < 0 or next_position[1] >= len(map_to_check[0]):
             print(f"Out of bounds at position {next_position}. Stopping.")
             break
 
-        #chicking the content of the next position
+        # chicking the content of the next position
         if map_to_check[next_position[0]][next_position[1]] == '#':
             # Turn 90 degrees clockwise
             current_direction = turn_90_degrees(current_direction)
             print(f"Encountered wall at {next_position}. Turning to {current_direction}.")
             continue
 
-        #moving to the next position
+        # moving to the next position
         print(f"Moving to {next_position} in direction {current_direction}.")
         map_to_check[next_position[0]][next_position[1]] = current_direction
         current_position = next_position
         movement_count[current_direction] += 1
 
         # Print the grid after each move
-        for line in map_to_check:
-            print("".join(line))
-        print()
+        #for line in map_to_check:
+        #    print("".join(line))
+        #print()
     
     # Return the movement count
     return movement_count
-
-def sum_moves(movements_dict):
-    for line in test_grid:
-        print(line)
-
-
-#print(f"Starting Pos = Row {finding_starting_position(test_grid)[0]} and Column {finding_starting_position(test_grid)[1]}") #--> funktioniert
-#print(check_direction(test_grid[6][4])) #--> Funktioniert
 
 # Convert test_input to grid
 test_grid = turn_input_to_grid(test_input)
@@ -135,6 +116,8 @@ movement_count = check_grid_at_new_position(input, start, initial_direction)
 # Output the movement count
 print("Final movement count:", movement_count)
 
+
+# PART 1 SOLUTION IS HERE:
 count = 0
 for line in input:
     for item in line:
@@ -142,5 +125,71 @@ for line in input:
             count += 1
 print(count)
 
+# PART 2 Functions
 
+def simulate_with_zero(map_to_check, position, direction, test_pos):
+    visited = set()
+    current_pos = position
+    current_direction = direction
+
+    while True:
+        # Record the current state (position + direction)
+        state = (current_pos[0], current_pos[1], current_direction)
+        if state in visited:
+            print(f"Cycle detected at state: {state}")
+            # Cycle detected
+            return True
+        visited.add(state)
+
+        # Determine the next position and direction
+        direction_vector = check_direction(current_direction)
+        next_pos = calculate_new_position(current_pos, direction_vector)
+
+        # Check bounds
+        if not (0 <= next_pos[0] < len(map_to_check) and 0 <= next_pos[1] < len(map_to_check[0])):
+            break  # Out of bounds, no cycle here
+
+        # Check the next position
+        if next_pos == test_pos:
+            next_tile = '0'  # Pretend the test position has a '0'
+        else:
+            next_tile = map_to_check[next_pos[0]][next_pos[1]]
+
+        if next_tile == '#':
+            current_direction = turn_90_degrees(current_direction)  # Turn 90 degrees clockwise
+        else:
+            current_pos = next_pos  # Move forward
+
+    return False
+
+
+def find_all_cycle_positions(map_to_check, start_pos, start_direction):
+    potential_positions = set()
+
+    for row in range(len(map_to_check)):
+        for col in range(len(map_to_check[0])):
+            # Skip positions that are walls or already part of the map
+            if map_to_check[row][col] != '.':
+                continue
+
+            # Simulate placing a '0' at this position
+            if simulate_with_zero(map_to_check, start_pos, start_direction, (row, col)):
+                potential_positions.add((row, col))
+
+    return potential_positions
+
+# Part 2 MAIN
+# Initialize the map and starting position
+test_grid = turn_input_to_grid(test_input)
+start_pos = finding_starting_position(test_grid)
+start_direction = '^'
+
+# Find all positions that lead to infinite cycles
+cycle_positions = find_all_cycle_positions(test_grid, start_pos, start_direction)
+
+# Output the result
+print(f"Total positions where '0' creates a cycle: {len(cycle_positions)}")
+print("Positions:", cycle_positions)
+
+print(test_grid)
 
